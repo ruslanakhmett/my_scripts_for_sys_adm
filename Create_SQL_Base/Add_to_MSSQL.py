@@ -1,0 +1,53 @@
+import pyodbc
+
+
+def req_sql(server_name: str, base_name: str, pwd: str, disk_letter: str, user: str):
+    driversql = '{SQL Server}'
+    cnxn = pyodbc.connect(f'DRIVER={driversql};SERVER={server_name};DATABASE=master;UID={user};PWD={pwd}', autocommit=True)
+    cursor = cnxn.cursor()
+    cursor.execute(f'''
+USE [master]
+CREATE DATABASE [{base_name}]
+CONTAINMENT = NONE
+ON PRIMARY
+( NAME = N'{base_name}', FILENAME = N'{disk_letter}:\{base_name}.mdf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB )
+LOG ON
+( NAME = N'{base_name}_log', FILENAME = N'{disk_letter}:\{base_name}_log.ldf' , SIZE = 256000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB )
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [{base_name}].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+ALTER DATABASE [{base_name}] SET ANSI_NULL_DEFAULT OFF 
+ALTER DATABASE [{base_name}] SET ANSI_NULLS OFF 
+ALTER DATABASE [{base_name}] SET ANSI_PADDING OFF 
+ALTER DATABASE [{base_name}] SET ANSI_WARNINGS OFF 
+ALTER DATABASE [{base_name}] SET ARITHABORT OFF 
+ALTER DATABASE [{base_name}] SET AUTO_CLOSE OFF 
+ALTER DATABASE [{base_name}] SET AUTO_SHRINK OFF 
+ALTER DATABASE [{base_name}] SET AUTO_UPDATE_STATISTICS ON 
+ALTER DATABASE [{base_name}] SET CURSOR_CLOSE_ON_COMMIT OFF 
+ALTER DATABASE [{base_name}] SET CURSOR_DEFAULT  GLOBAL 
+ALTER DATABASE [{base_name}] SET CONCAT_NULL_YIELDS_NULL OFF 
+ALTER DATABASE [{base_name}] SET NUMERIC_ROUNDABORT OFF 
+ALTER DATABASE [{base_name}] SET QUOTED_IDENTIFIER OFF 
+ALTER DATABASE [{base_name}] SET RECURSIVE_TRIGGERS OFF 
+ALTER DATABASE [{base_name}] SET DISABLE_BROKER 
+ALTER DATABASE [{base_name}] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+ALTER DATABASE [{base_name}] SET DATE_CORRELATION_OPTIMIZATION OFF 
+ALTER DATABASE [{base_name}] SET TRUSTWORTHY OFF 
+ALTER DATABASE [{base_name}] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+ALTER DATABASE [{base_name}] SET PARAMETERIZATION SIMPLE 
+ALTER DATABASE [{base_name}] SET READ_COMMITTED_SNAPSHOT OFF 
+ALTER DATABASE [{base_name}] SET HONOR_BROKER_PRIORITY OFF 
+ALTER DATABASE [{base_name}] SET RECOVERY SIMPLE
+ALTER DATABASE [{base_name}] SET MULTI_USER 
+ALTER DATABASE [{base_name}] SET PAGE_VERIFY CHECKSUM  
+ALTER DATABASE [{base_name}] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+ALTER DATABASE [{base_name}] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+ALTER DATABASE [{base_name}] SET DELAYED_DURABILITY = DISABLED 
+ALTER DATABASE [{base_name}] SET QUERY_STORE = OFF
+ALTER DATABASE [{base_name}] SET  READ_WRITE ''')
+ 
+    cursor.close()
+
+

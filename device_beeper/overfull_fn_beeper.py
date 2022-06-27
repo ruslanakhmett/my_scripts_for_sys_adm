@@ -56,7 +56,7 @@ def send_beep(kkt_array: list):
         with open("/var/log/overfull_fn_beeper/overfull_fn_beeper.log", "a") as file:
                     file.write(f'{today_now}    Ошибка при отправке гудка (send_beep) {str(err)}\n')
     
-    if response.status_code == 200: # проверяем, по всем ли кассам вернулся ОК
+    if response.status_code == 200:
         for item in response.json()['results']:
             for elem in kkt_array:
                 if item['id'] == elem[0]:
